@@ -1,0 +1,87 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: traefik
+  namespace: bplab-system
+spec:
+  interval: 1h
+  url: https://traefik.github.io/charts
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: traefik
+  namespace: bplab-system
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: traefik
+      version: "33.0.0"
+      sourceRef:
+        kind: HelmRepository
+        name: traefik
+        namespace: bplab-system
+  values:
+    ingressClass:
+      enabled: true
+      isDefaultClass: true
+      name: traefik-internal
+    providers:
+      kubernetesIngress:
+        publishedService:
+          enabled: true
+    priorityClassName: "system-cluster-critical"
+    tolerations:
+      - key: "CriticalAddonsOnly"
+        operator: "Exists"
+      - key: "node-role.kubernetes.io/control-plane"
+        operator: "Exists"
+        effect: "NoSchedule"
+      - key: "node-role.kubernetes.io/master"
+        operator: "Exists"
+        effect: "NoSchedule"
+    service:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: 10.21.0.150
+      ipFamilyPolicy: "PreferDualStack"
+    logs:
+      general:
+        level: ERROR
+      access:
+        enabled: false
+    ports:
+      electrum-50002:
+        expose: true
+        port: 50002
+        exposedPort: 50002
+        protocol: TCP
+      bitcoind-8332:
+        expose: true
+        port: 8332
+        exposedPort: 8332
+        protocol: TCP
+      bitcoind-8333:
+        expose: true
+        port: 8333
+        exposedPort: 8333
+        protocol: TCP
+      bitcoind-28332:
+        expose: true
+        port: 28332
+        exposedPort: 28332
+        protocol: TCP
+      bitcoind-28333:
+        expose: true
+        port: 28333
+        exposedPort: 28333
+        protocol: TCP
+      datum-23334:
+        expose: true
+        port: 23334
+        exposedPort: 23334
+        protocol: TCP
+    providers:
+      kubernetesCRD:
+        allowCrossNamespace: true
