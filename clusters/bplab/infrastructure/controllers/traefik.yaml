@@ -55,32 +55,26 @@ spec:
         enabled: false
     ports:
       electrum-50002:
-        expose: true
         port: 50002
         exposedPort: 50002
         protocol: TCP
       bitcoind-8332:
-        expose: true
         port: 8332
         exposedPort: 8332
         protocol: TCP
       bitcoind-8333:
-        expose: true
         port: 8333
         exposedPort: 8333
         protocol: TCP
       bitcoind-28332:
-        expose: true
         port: 28332
         exposedPort: 28332
         protocol: TCP
       bitcoind-28333:
-        expose: true
         port: 28333
         exposedPort: 28333
         protocol: TCP
       datum-23334:
-        expose: true
         port: 23334
         exposedPort: 23334
         protocol: TCP
