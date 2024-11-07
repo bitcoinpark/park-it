@@ -3,4 +3,3 @@ kind: Kustomization
 resources:
   - metallb.yaml
   - traefik.yaml
-  - metallb-configs.yaml
