@@ -32,6 +32,8 @@ spec:
       kubernetesIngress:
         publishedService:
           enabled: true
+      kubernetesCRD:
+        allowCrossNamespace: true
     priorityClassName: "system-cluster-critical"
     tolerations:
       - key: "CriticalAddonsOnly"
@@ -82,6 +84,3 @@ spec:
         port: 23334
         exposedPort: 23334
         protocol: TCP
-    providers:
-      kubernetesCRD:
-        allowCrossNamespace: true
