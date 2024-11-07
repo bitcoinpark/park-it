@@ -17,7 +17,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./infrastructure/controllers
+  path: ./clusters/bplab/infrastructure/controllers
   prune: true
   wait: true
 ---
@@ -35,5 +35,5 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./infrastructure/configs
+  path: ./clusters/bplab/infrastructure/configs
   prune: true
