@@ -5,7 +5,7 @@ metadata:
   namespace: bplab-system
 spec:
   interval: 5m
-  url: https://github.com/lldap-kubernetes/lldap-chart
+  url: https://github.com/Evantage-WS/lldap-kubernetes/lldap-chart
   ref:
     branch: master
 ---

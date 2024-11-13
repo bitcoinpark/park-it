@@ -6,3 +6,4 @@ resources:
   - metallb.yaml
   - csi-proxmox.yaml
   - traefik.yaml
+  - lldap.yaml
