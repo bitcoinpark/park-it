@@ -29,6 +29,8 @@ kubectl -n default create secret generic basic-auth \
 ```
 Encrypt the secret with SOPS using the GPG key:
 ```
-sops --encrypt --in-place basic-auth.yaml
+sops --config ./clusters/bplab/.sops.yaml --encrypt --in-place basic-auth.yaml
 ```
+If you're having an issue with the above command, ensure that you're pointing to the config located at `./clusters/bplab/.sops.yaml`. This file contains `creation_rules` that dictate which key fingerprint to use for encryption.
+
 Store this secret alongside your other manifests in this repo and it will be deployed and decrypted upon deployment to the cluster.
