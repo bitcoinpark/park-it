@@ -14,9 +14,9 @@ Ensure that you have have both gpg and the sops cli installed:
 ```
 brew install gnupg sops
 ```
-Clone this repo or download the `./clusters/bplab/.sops.pub.asc` public key, then import it into your keyring:
+Clone this repo or download the `./secrets/.sops.pub.asc` public key, then import it into your keyring:
 ```
-gpg --import ./clusters/bplab/.sops.pub.asc
+gpg --import ./secrets/.sops.pub.asc
 ```
 Here's a basic example of how to create and encrypt a secret using SOPS:
 ```
@@ -29,8 +29,8 @@ kubectl -n default create secret generic basic-auth \
 ```
 Encrypt the secret with SOPS using the GPG key:
 ```
-sops --config ./clusters/bplab/.sops.yaml --encrypt --in-place basic-auth.yaml
+sops --config ./secrets/.sops.yaml --encrypt --in-place basic-auth.yaml
 ```
-If you're having an issue with the above command, ensure that you're pointing to the config located at `./clusters/bplab/.sops.yaml`. This file contains `creation_rules` that dictate which key fingerprint to use for encryption.
+If you're having an issue with the above command, ensure that you're pointing to the config located at `./secrets/.sops.yaml`. This file contains `creation_rules` that dictate which key fingerprint to use for encryption.
 
 Store this secret alongside your other manifests in this repo and it will be deployed and decrypted upon deployment to the cluster.
