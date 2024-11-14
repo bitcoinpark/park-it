@@ -6,7 +6,7 @@ metadata:
   namespace: bplab-system
 spec:
   interval: 1h
-  url: https://charts.coredns.io
+  url: https://coredns.github.io/helm
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
