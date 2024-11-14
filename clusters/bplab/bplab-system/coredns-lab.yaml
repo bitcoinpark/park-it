@@ -25,6 +25,7 @@ spec:
         namespace: bplab-system
   values:
     replicaCount: 1
+    serviceType: "LoadBalancer"
     image:
       repository: coredns/coredns
       tag: "1.11.3"
