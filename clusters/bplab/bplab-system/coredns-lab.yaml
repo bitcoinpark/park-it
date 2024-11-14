@@ -11,7 +11,7 @@ spec:
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: coredns-authoritative
+  name: coredns-lab
   namespace: bplab-system
 spec:
   interval: 5m
@@ -33,17 +33,8 @@ spec:
     priorityClassName: "system-cluster-critical"
     service:
       annotations:
-        metallb.universe.tf/loadBalancerIPs: 10.21.0.53
+        metallb.universe.tf/loadBalancerIPs: 10.21.0.153
       ipFamilyPolicy: "SingleStack"
-    servers:
-      - zones:
-          - zone: "lab.bitcoinpark.com"
-        port: 53
-        plugins:
-          - name: errors
-          - name: log
-          - name: file
-            parameters: /etc/coredns/zones/lab.bitcoinpark.com.db
     zoneFiles:
       - filename: "lab.bitcoinpark.com.db"
         domain: "lab.bitcoinpark.com"
