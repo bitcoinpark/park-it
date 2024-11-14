@@ -1,0 +1,53 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: coredns
+  namespace: bplab-system
+spec:
+  interval: 1h
+  url: https://coredns.github.io/helm
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: coredns-lab
+  namespace: bplab-system
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: coredns
+      version: "1.18.0"
+      sourceRef:
+        kind: HelmRepository
+        name: coredns
+        namespace: bplab-system
+  values:
+    replicaCount: 1
+    serviceType: "LoadBalancer"
+    image:
+      repository: coredns/coredns
+      tag: "1.11.3"
+      pullPolicy: IfNotPresent
+    priorityClassName: "system-cluster-critical"
+    service:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: 10.21.0.153
+      ipFamilyPolicy: "SingleStack"
+    zoneFiles:
+      - filename: "lab.bitcoinpark.com.db"
+        domain: "lab.bitcoinpark.com"
+        contents: |
+          $ORIGIN lab.bitcoinpark.com.
+          $TTL 86400
+          @       IN SOA  ns1.lab.bitcoinpark.com. admin.bitcoinpark.com. (
+                      2024111401 ; serial number
+                      3600       ; refresh
+                      1800       ; retry
+                      604800     ; expire
+                      86400      ; minimum TTL
+                      )
+                  IN NS    ns1.lab.bitcoinpark.com.
+          ns1     IN A     68.47.229.218
+          mempool IN A     68.47.229.218
