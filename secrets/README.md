@@ -1,10 +1,3 @@
-# Park IT
-
-Some initial documentation for managing the network and server infrastructure at the Park.
-
-## Notes:
-Proxmox Admin URL: https://10.31.0.6:8006/
-
 ## Secrets:
 We're using SOPS (https://github.com/getsops/sops) for secrets management.
 
