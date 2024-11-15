@@ -35,6 +35,29 @@ spec:
       annotations:
         metallb.universe.tf/loadBalancerIPs: 10.21.0.153
       ipFamilyPolicy: "SingleStack"
+    servers:
+      - zones:
+        - zone: "lab.bitcoinpark.com"
+        port: 53
+        plugins:
+        - name: errors
+        - name: log
+        # Serves a /health endpoint on :8080, required for livenessProbe
+        - name: health
+          configBlock: |-
+            lameduck 5s
+        # Serves a /ready endpoint on :8181, required for readinessProbe
+        - name: ready
+        # Serves a /metrics endpoint on :9153, required for serviceMonitor
+        - name: prometheus
+          parameters: 0.0.0.0:9153
+        - name: forward
+          parameters: . /etc/resolv.conf
+        - name: cache
+          parameters: 30
+        - name: loop
+        - name: reload
+        - name: loadbalance
     zoneFiles:
       - filename: "lab.bitcoinpark.com.db"
         domain: "lab.bitcoinpark.com"
