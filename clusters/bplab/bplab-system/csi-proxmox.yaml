@@ -32,12 +32,8 @@ spec:
     existingConfigSecret: proxmox-csi-config
     # See https://pve.proxmox.com/wiki/Storage
     storageClass:
-      - name: proxmox-data-xfs
-        storage: data
-        reclaimPolicy: Retain
-        fstype: xfs
       - name: proxmox-data
-        storage: data
+        storage: DATA
         reclaimPolicy: Retain
         fstype: ext4
         cache: writethrough
