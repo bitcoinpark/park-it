@@ -1,0 +1,82 @@
+# The cert-manager component is used for issuing LetsEncrypt certificates for bitcoinpark.com and
+# lab.bitcoinpark.com domain names. It uses the hosted zones created in Route53 to handle all of
+# the various challenge/response requirements with LetsEncrypt. To acheive this, there is a 'user'
+# created in AWS (IAM) with a strict policy that only allows permission to what's required. The IAM
+# policy is called "cert-manager" and contains this policy doc:
+# 
+# {
+#     "Version": "2012-10-17",
+#     "Statement": [
+#         {
+#             "Effect": "Allow",
+#             "Action": "route53:GetChange",
+#             "Resource": "arn:aws:route53:::change/*"
+#         },
+#         {
+#             "Effect": "Allow",
+#             "Action": [
+#                 "route53:ChangeResourceRecordSets",
+#                 "route53:ListResourceRecordSets"
+#             ],
+#             "Resource": [
+#                 "arn:aws:route53:::hostedzone/Z0653209Z6S366EXRWOQ", # bitcoinpark.com
+#                 "arn:aws:route53:::hostedzone/Z000334233EBEWADQVWQT" # lab.bitcoinpark.com
+#             ]
+#         },
+#         {
+#             "Effect": "Allow",
+#             "Action": "route53:ListHostedZonesByName",
+#             "Resource": "*"
+#         }
+#     ]
+# }
+# 
+# The user is also called "cert-manager". In order to allow cert-manager to manage these zones,
+# an access key has been generated. The "accessKeyID" is specified in the ClusterIssuer below and
+# the secret is stored (encrypted with SOPS) in the /secrets folder, called "prod-route53-credentials.yaml"
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: jetstack
+  namespace: bplab-system
+spec:
+  interval: 1h
+  url: https://charts.jetstack.io
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: cert-manager
+  namespace: bplab-system
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: cert-manager
+      version: "v1.16.2"
+      sourceRef:
+        kind: HelmRepository
+        name: jetstack
+        namespace: bplab-system
+  values:
+    crds:
+      enabled: true
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-issuer-key
+    solvers:
+    - dns01:
+        route53:
+          region: us-east-1
+          accessKeyID: AKIARHQBNV47Y5KFKVTT
+          secretAccessKeySecretRef:
+            name: prod-route53-credentials-secret
+            key: secret-access-key
