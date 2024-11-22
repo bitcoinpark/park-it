@@ -41,7 +41,7 @@ spec:
       - -txindex=1
       - -dbcache=2000
       - -par=1
-      - -rpcthreads=2
+      - -rpcthreads=8
       - -maxconnections=40
       - -maxorphantx=10
       - -maxuploadtarget=1000
