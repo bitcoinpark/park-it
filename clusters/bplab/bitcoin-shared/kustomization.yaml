@@ -4,3 +4,4 @@ resources:
   - namespace.yaml
   - bitcoind-mainnet.yaml
   - fulcrum-mainnet.yaml
+  - mempool-space-mainnet.yaml
