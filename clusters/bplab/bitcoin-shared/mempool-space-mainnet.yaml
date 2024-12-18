@@ -1,0 +1,62 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: mempool-space-mainnet
+  namespace: bitcoin-shared
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: mempool
+      version: "0.1.10"
+      sourceRef:
+        kind: HelmRepository
+        name: bitcoin-helm-charts
+        namespace: bitcoin-shared
+  values:
+    frontend:
+      ingress:
+        enabled: true
+        ingressClassName: traefik-internal
+        annotations:
+          cert-manager.io/cluster-issuer: "letsencrypt-prod"
+        hosts:
+          - mempool.lab.bitcoinpark.com
+        tls:
+        - hosts:
+          - mempool.lab.bitcoinpark.com
+          secretName: mempool-mainnet-tls
+
+    backend:
+      coreRpcHost: bitcoind-mainnet
+      coreRpcUsername: mempool-space-mainnet
+      
+      envExternalSecretName: mempool-space-mainnet-env-vars
+
+      env:
+        NODE_OPTIONS: "--max-old-space-size=3072" 
+        BISQ_ENABLED: "false"
+        LIQUID_ENABLED: "false"
+        LIGHTNING: "false"
+      
+      mempoolBackend:
+        type: electrum
+        electrum:
+          host: fulcrum-mainnet
+          port: 50001
+          tls: false
+      resources:
+        limits:
+          cpu: 2
+          memory: 4Gi
+        requests:
+          cpu: 1.6
+          memory: 2Gi
+
+    mariadb:
+      primary:
+        persistence:
+          enabled: true
+          storageClass: proxmox-data
+          size: 8Gi
