@@ -60,3 +60,15 @@ spec:
         port: 8332
         exposedPort: 8332
         protocol: TCP
+      fulcrum-50001:
+        expose:
+          default: true
+        port: 50001
+        exposedPort: 50001
+        protocol: TCP
+      fulcrum-50002:
+        expose:
+          default: true
+        port: 50002
+        exposedPort: 50002
+        protocol: TCP
