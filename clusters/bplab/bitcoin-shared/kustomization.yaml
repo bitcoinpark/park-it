@@ -3,5 +3,6 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - bitcoind-mainnet.yaml
+  - bitcoind-testnet4.yaml
   - fulcrum-mainnet.yaml
   - mempool-space-mainnet.yaml

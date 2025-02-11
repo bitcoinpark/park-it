@@ -60,6 +60,12 @@ spec:
         port: 8332
         exposedPort: 8332
         protocol: TCP
+      bitcoind-18332:
+        expose:
+          default: true
+        port: 18332
+        exposedPort: 18332
+        protocol: TCP
       fulcrum-50001:
         expose:
           default: true
