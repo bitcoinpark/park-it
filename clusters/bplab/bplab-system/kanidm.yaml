@@ -8,7 +8,7 @@ metadata:
     app.kubernetes.io/instance: kanidm
 data:
   server.toml: |
-    bindaddress = "[::]:443"
+    bindaddress = "[::]:8443"
     ldapbindaddress = "[::]:3636"
     trust_x_forward_for = true
     tls_chain = "/certs/tls.crt"
@@ -24,35 +24,80 @@ data:
 apiVersion: v1
 kind: Service
 metadata:
+  name: kanidm-https
+  namespace: bplab-system
   labels:
     app.kubernetes.io/name: kanidm
     app.kubernetes.io/instance: kanidm
-  annotations:
-    metallb.universe.tf/allow-shared-ip: "kanidm-https"
-  name: kanidm-https
-  namespace: bplab-system
 spec:
   ports:
   - name: https
-    port: 443
+    port: 8443
     protocol: TCP
-    targetPort: 443
+    targetPort: 8443
   selector:
     app.kubernetes.io/name: kanidm
     app.kubernetes.io/instance: kanidm
-  type: LoadBalancer
-  loadBalancerIP: 10.21.0.190
+  type: ClusterIP
+---
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata:
+  name: kanidm-https
+  namespace: bplab-system
+spec:
+  insecureSkipVerify: true
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: kanidm
+  namespace: bplab-system
+  labels:
+    app.kubernetes.io/name: kanidm
+    app.kubernetes.io/instance: kanidm
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`idm.bitcoinpark.com`)
+    kind: Rule
+    services:
+    - name: kanidm-https
+      port: 8443
+      scheme: https
+      serversTransport: kanidm-https
+  tls:
+    secretName: kanidm-tls
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: kanidm-tls
+  namespace: bplab-system
+  labels:
+    app.kubernetes.io/name: kanidm
+    app.kubernetes.io/instance: kanidm
+spec:
+  dnsNames:
+    - idm.bitcoinpark.com
+  issuerRef:
+    group: cert-manager.io
+    kind: ClusterIssuer
+    name: letsencrypt-prod
+  secretName: kanidm-tls
+  usages:
+    - digital signature
+    - key encipherment
 ---
 apiVersion: v1
 kind: Service
 metadata:
+  name: kanidm-ldaps
+  namespace: bplab-system
   labels:
     app.kubernetes.io/name: kanidm
     app.kubernetes.io/instance: kanidm
-  annotations:
-    metallb.universe.tf/allow-shared-ip: "kanidm-https"
-  name: kanidm-ldaps
-  namespace: bplab-system
 spec:
   ports:
   - name: ldaps
@@ -73,7 +118,6 @@ metadata:
   labels:
     app.kubernetes.io/name: kanidm
     app.kubernetes.io/instance: kanidm
-  annotations:
 spec:
   serviceName: kanidm-https
   selector:
@@ -117,7 +161,7 @@ spec:
             successThreshold: 1
             timeoutSeconds: 1
           ports:
-            - containerPort: 443
+            - containerPort: 8443
               name: https
             - containerPort: 3636
               name: ldaps
@@ -168,23 +212,3 @@ spec:
           requests:
             storage: 2Gi
         storageClassName: proxmox-data
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: kanidm-tls
-  namespace: bplab-system
-  labels:
-    app.kubernetes.io/name: kanidm
-    app.kubernetes.io/instance: kanidm
-spec:
-  dnsNames:
-    - idm.bitcoinpark.com
-  issuerRef:
-    group: cert-manager.io
-    kind: ClusterIssuer
-    name: letsencrypt-prod
-  secretName: kanidm-tls
-  usages:
-    - digital signature
-    - key encipherment
