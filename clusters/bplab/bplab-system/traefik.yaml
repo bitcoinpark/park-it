@@ -78,3 +78,15 @@ spec:
         port: 50002
         exposedPort: 50002
         protocol: TCP
+      fulcrum-40001:
+        expose:
+          default: true
+        port: 40001
+        exposedPort: 40001
+        protocol: TCP
+      fulcrum-40002:
+        expose:
+          default: true
+        port: 40002
+        exposedPort: 40002
+        protocol: TCP
