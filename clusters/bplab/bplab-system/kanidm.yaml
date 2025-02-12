@@ -75,6 +75,7 @@ metadata:
     app.kubernetes.io/instance: kanidm
   annotations:
 spec:
+  serviceName: kanidm-https
   selector:
     matchLabels:
       app.kubernetes.io/name: kanidm
