@@ -21,6 +21,7 @@ spec:
       - -chain=testnet4
       - -printtoconsole
       - -bind=$(MY_POD_IP)
+      - -rpcport=18332
       - -listen
       - -server
       - -rpcbind=$(MY_POD_IP)
