@@ -218,8 +218,8 @@ spec:
           CREATE DATABASE IF NOT EXISTS mainnet;
           GRANT ALL PRIVILEGES ON mainnet.* TO 'mempool'@'%';
           
-          CREATE DATABASE IF NOT EXISTS testnet;
-          GRANT ALL PRIVILEGES ON testnet.* TO 'mempool'@'%';
+          CREATE DATABASE IF NOT EXISTS testnet4;
+          GRANT ALL PRIVILEGES ON testnet4.* TO 'mempool'@'%';
           FLUSH PRIVILEGES;
 
       primary:
