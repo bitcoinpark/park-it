@@ -18,7 +18,8 @@ spec:
     frontend:
       env:
         BACKEND_MAINNET_HTTP_HOST: "mempool-space-mainnet-backend-mainnet"
-        TESTNET_ENABLED: "true"
+        TESTNET_ENABLED: "false"
+        TESTNET4_ENABLED: "true"
         MEMPOOL_TESTNET4_HTTP_HOST: "mempool-space-mainnet-backend-testnet4"
         MEMPOOL_TESTNET4_HTTP_PORT: "8999"
       ingress:
