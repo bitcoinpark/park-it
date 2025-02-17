@@ -61,17 +61,17 @@ spec:
         port: 8332
         exposedPort: 8332
         protocol: TCP
-      bitcoind-28332:
+      bitcoind-58444:
         expose:
           default: true
-        port: 28332
-        exposedPort: 28332
+        port: 58444
+        exposedPort: 58444
         protocol: TCP
-      bitcoind-28333:
+      bitcoind-58445:
         expose:
           default: true
-        port: 28333
-        exposedPort: 28333
+        port: 58445
+        exposedPort: 58445
         protocol: TCP
       # testnet4
       bitcoind-18332:
