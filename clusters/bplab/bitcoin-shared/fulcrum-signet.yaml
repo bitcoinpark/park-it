@@ -17,7 +17,7 @@ spec:
   values:
     config: |
       datadir = /data
-      bitcoind = bitcoind-signet:18332
+      bitcoind = bitcoind-signet:38332
       rpcuser = electrum-server
       # rpcpassword is being set using RPCPASSWORD environment variable, stored in rpcPasswordEnvVarSecretName secret
 
