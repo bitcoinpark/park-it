@@ -1,0 +1,135 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: bitcoind-signet
+  namespace: bitcoin-shared
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: bitcoind
+      version: "0.3.5"
+      sourceRef:
+        kind: HelmRepository
+        name: bitcoin-helm-charts
+        namespace: bitcoin-shared
+  values:
+    extraEnv:
+      MALLOC_ARENA_MAX: 1
+
+    arguments:
+      - -chain=signet
+      - -printtoconsole
+      - -bind=$(MY_POD_IP)
+      - -rpcport=38332
+      - -listen
+      - -server
+      - -rpcbind=$(MY_POD_IP)
+      - -rpcallowip=10.0.0.0/8
+      - -persistmempool
+      - -txindex=1
+      - -dbcache=2000
+      - -par=1
+      - -rpcthreads=8
+      - -maxconnections=40
+      - -maxorphantx=10
+      - -maxuploadtarget=1000
+      - -blockfilterindex=1
+      - -rpcworkqueue=50
+      - -zmqpubrawblock=tcp://0.0.0.0:38444
+      - -zmqpubrawtx=tcp://0.0.0.0:38445
+      - -zmqpubhashblock=tcp://0.0.0.0:38446
+    
+    # Find this secret in ./secrets. The secret contains RPC credentials
+    configExternalSecretName: bitcoin-shared-signet-config
+
+    strategyType: Recreate
+
+    service:
+      ports:
+        tcp:
+          - 38332
+          - 38444
+          - 38445
+          - 38446
+      type: ClusterIP
+
+    persistence:
+      enabled: true
+      storageClass: proxmox-data
+      size: 800Gi
+
+    podSecurityContext:
+      fsGroup: 1000
+      runAsUser: 1000
+      runAsGroup: 1000
+      runAsNonRoot: true
+
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      runAsNonRoot: true
+
+    resources:
+      limits:
+        cpu: 1.5
+        memory: 8000Mi
+      requests:
+        cpu: 0.3
+        memory: 1000Mi
+
+    extraManifests:
+      - |
+        apiVersion: traefik.io/v1alpha1
+        kind: IngressRouteTCP
+        metadata:
+          labels:
+            {{- include "bitcoind.labels" . | nindent 4 }}
+          name: {{ template "bitcoind.fullname" . }}-38332
+        spec:
+          entryPoints:
+          # Ensure that you have an entrypoint configured for traefik, like this:
+          #  additionalArguments:
+          #  - "--entrypoints.bitcoind-38332.address=:38332"
+          - bitcoind-38332
+          routes:
+          - match: HostSNI(`*`)
+            services:
+            - name: {{ include "bitcoind.fullname" . }}
+              port: 38332
+        ---
+        apiVersion: traefik.io/v1alpha1
+        kind: IngressRouteTCP
+        metadata:
+          labels:
+            {{- include "bitcoind.labels" . | nindent 4 }}
+          name: {{ template "bitcoind.fullname" . }}-38444
+        spec:
+          entryPoints:
+          # Ensure that you have an entrypoint configured for traefik, like this:
+          #  additionalArguments:
+          #  - "--entrypoints.bitcoind-38444.address=:38444"
+          - bitcoind-38444
+          routes:
+          - match: HostSNI(`*`)
+            services:
+            - name: {{ include "bitcoind.fullname" . }}
+              port: 38444
+        ---
+        apiVersion: traefik.io/v1alpha1
+        kind: IngressRouteTCP
+        metadata:
+          labels:
+            {{- include "bitcoind.labels" . | nindent 4 }}
+          name: {{ template "bitcoind.fullname" . }}-38445
+        spec:
+          entryPoints:
+          # Ensure that you have an entrypoint configured for traefik, like this:
+          #  additionalArguments:
+          #  - "--entrypoints.bitcoind-38445.address=:38445"
+          - bitcoind-38445
+          routes:
+          - match: HostSNI(`*`)
+            services:
+            - name: {{ include "bitcoind.fullname" . }}
+              port: 38445
