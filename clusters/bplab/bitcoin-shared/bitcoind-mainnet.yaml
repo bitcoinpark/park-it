@@ -44,9 +44,9 @@ spec:
       - -maxuploadtarget=1000
       - -blockfilterindex=1
       - -rpcworkqueue=50
-      - -zmqpubrawblock=tcp://0.0.0.0:28332
-      - -zmqpubrawtx=tcp://0.0.0.0:28333
-      - -zmqpubhashblock=tcp://0.0.0.0:8433
+      - -zmqpubrawblock=tcp://0.0.0.0:58444
+      - -zmqpubrawtx=tcp://0.0.0.0:58445
+      - -zmqpubhashblock=tcp://0.0.0.0:58446
     
     # Find this secret in ./secrets. The secret contains RPC credentials
     configExternalSecretName: bitcoin-shared-mainnet-config
@@ -57,8 +57,8 @@ spec:
       ports:
         tcp:
           - 8433
-          - 28332
-          - 28333
+          - 58444
+          - 58445
       type: ClusterIP
 
     persistence:
@@ -110,33 +110,33 @@ spec:
         metadata:
           labels:
             {{- include "bitcoind.labels" . | nindent 4 }}
-          name: {{ template "bitcoind.fullname" . }}-28332
+          name: {{ template "bitcoind.fullname" . }}-58444
         spec:
           entryPoints:
           # Ensure that you have an entrypoint configured for traefik, like this:
           #  additionalArguments:
-          #  - "--entrypoints.bitcoind-28332.address=:28332"
-          - bitcoind-28332
+          #  - "--entrypoints.bitcoind-58444.address=:58444"
+          - bitcoind-58444
           routes:
           - match: HostSNI(`*`)
             services:
             - name: {{ include "bitcoind.fullname" . }}
-              port: 28332
+              port: 58444
         ---
         apiVersion: traefik.io/v1alpha1
         kind: IngressRouteTCP
         metadata:
           labels:
             {{- include "bitcoind.labels" . | nindent 4 }}
-          name: {{ template "bitcoind.fullname" . }}-28333
+          name: {{ template "bitcoind.fullname" . }}-58445
         spec:
           entryPoints:
           # Ensure that you have an entrypoint configured for traefik, like this:
           #  additionalArguments:
-          #  - "--entrypoints.bitcoind-28333.address=:28333"
-          - bitcoind-28333
+          #  - "--entrypoints.bitcoind-58445.address=:58445"
+          - bitcoind-58445
           routes:
           - match: HostSNI(`*`)
             services:
             - name: {{ include "bitcoind.fullname" . }}
-              port: 28333
+              port: 58445
