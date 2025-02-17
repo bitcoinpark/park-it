@@ -66,6 +66,24 @@ spec:
         port: 18332
         exposedPort: 18332
         protocol: TCP
+      bitcoind-38332:
+        expose:
+          default: true
+        port: 38332
+        exposedPort: 38332
+        protocol: TCP
+      bitcoind-38444:
+        expose:
+          default: true
+        port: 38444
+        exposedPort: 38444
+        protocol: TCP
+      bitcoind-38445:
+        expose:
+          default: true
+        port: 38445
+        exposedPort: 38445
+        protocol: TCP
       fulcrum-50001:
         expose:
           default: true

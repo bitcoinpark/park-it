@@ -57,7 +57,7 @@ spec:
     persistence:
       enabled: true
       storageClass: proxmox-data
-      size: 200Gi
+      size: 800Gi
 
     podSecurityContext:
       fsGroup: 1000
@@ -115,3 +115,21 @@ spec:
             services:
             - name: {{ include "bitcoind.fullname" . }}
               port: 38444
+        ---
+        apiVersion: traefik.io/v1alpha1
+        kind: IngressRouteTCP
+        metadata:
+          labels:
+            {{- include "bitcoind.labels" . | nindent 4 }}
+          name: {{ template "bitcoind.fullname" . }}-38445
+        spec:
+          entryPoints:
+          # Ensure that you have an entrypoint configured for traefik, like this:
+          #  additionalArguments:
+          #  - "--entrypoints.bitcoind-38445.address=:38445"
+          - bitcoind-38445
+          routes:
+          - match: HostSNI(`*`)
+            services:
+            - name: {{ include "bitcoind.fullname" . }}
+              port: 38445
