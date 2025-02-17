@@ -104,3 +104,39 @@ spec:
             services:
             - name: {{ include "bitcoind.fullname" . }}
               port: 8332
+        ---
+        apiVersion: traefik.io/v1alpha1
+        kind: IngressRouteTCP
+        metadata:
+          labels:
+            {{- include "bitcoind.labels" . | nindent 4 }}
+          name: {{ template "bitcoind.fullname" . }}-28332
+        spec:
+          entryPoints:
+          # Ensure that you have an entrypoint configured for traefik, like this:
+          #  additionalArguments:
+          #  - "--entrypoints.bitcoind-28332.address=:28332"
+          - bitcoind-28332
+          routes:
+          - match: HostSNI(`*`)
+            services:
+            - name: {{ include "bitcoind.fullname" . }}
+              port: 28332
+        ---
+        apiVersion: traefik.io/v1alpha1
+        kind: IngressRouteTCP
+        metadata:
+          labels:
+            {{- include "bitcoind.labels" . | nindent 4 }}
+          name: {{ template "bitcoind.fullname" . }}-28333
+        spec:
+          entryPoints:
+          # Ensure that you have an entrypoint configured for traefik, like this:
+          #  additionalArguments:
+          #  - "--entrypoints.bitcoind-28333.address=:28333"
+          - bitcoind-28333
+          routes:
+          - match: HostSNI(`*`)
+            services:
+            - name: {{ include "bitcoind.fullname" . }}
+              port: 28333

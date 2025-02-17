@@ -54,18 +54,45 @@ spec:
       access:
         enabled: false
     ports:
+      # mainnet
       bitcoind-8332:
         expose:
           default: true
         port: 8332
         exposedPort: 8332
         protocol: TCP
+      bitcoind-28332:
+        expose:
+          default: true
+        port: 28332
+        exposedPort: 28332
+        protocol: TCP
+      bitcoind-28333:
+        expose:
+          default: true
+        port: 28333
+        exposedPort: 28333
+        protocol: TCP
+      # testnet4
       bitcoind-18332:
         expose:
           default: true
         port: 18332
         exposedPort: 18332
         protocol: TCP
+      bitcoind-18444:
+        expose:
+          default: true
+        port: 18444
+        exposedPort: 18444
+        protocol: TCP
+      bitcoind-18445:
+        expose:
+          default: true
+        port: 18445
+        exposedPort: 18445
+        protocol: TCP
+      # signet
       bitcoind-38332:
         expose:
           default: true
@@ -84,6 +111,7 @@ spec:
         port: 38445
         exposedPort: 38445
         protocol: TCP
+      # mainnet
       fulcrum-50001:
         expose:
           default: true
@@ -96,6 +124,7 @@ spec:
         port: 50002
         exposedPort: 50002
         protocol: TCP
+      # testnet4
       fulcrum-40001:
         expose:
           default: true
@@ -107,4 +136,17 @@ spec:
           default: true
         port: 40002
         exposedPort: 40002
+        protocol: TCP
+      # signet
+      fulcrum-30001:
+        expose:
+          default: true
+        port: 30001
+        exposedPort: 30001
+        protocol: TCP
+      fulcrum-30002:
+        expose:
+          default: true
+        port: 30002
+        exposedPort: 30002
         protocol: TCP
