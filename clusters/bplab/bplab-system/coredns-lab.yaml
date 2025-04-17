@@ -72,5 +72,5 @@ spec:
                       86400      ; minimum TTL
                       )
                   IN NS    ns1.lab.bitcoinpark.com.
-          ns1     IN A     68.47.229.218
-          mempool IN A     68.47.229.218
+          ns1     IN A     136.41.161.69
+          mempool IN A     136.41.161.69
