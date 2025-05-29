@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frith-ingress
+  namespace: frith
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: traefik-internal
+  rules:
+    - host: frith.lab.bitcoinpark.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frith-service
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - frith.lab.bitcoinpark.com
+      secretName: frith-tls 

@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flotilla-deployment
+  namespace: flotilla
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flotilla
+  template:
+    metadata:
+      labels:
+        app: flotilla
+    spec:
+      containers:
+        - name: flotilla
+          image: ghcr.io/coracle-social/flotilla:latest
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: flotilla-config 

@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frith-deployment
+  namespace: frith
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frith
+  template:
+    metadata:
+      labels:
+        app: frith
+    spec:
+      containers:
+        - name: frith
+          image: ghcr.io/coracle-social/frith
+          ports:
+            - containerPort: 3334
+          envFrom:
+            - configMapRef:
+                name: frith-config
+          volumeMounts:
+            - name: frith-data
+              mountPath: /tmp/data
+      volumes:
+        - name: frith-data
+          persistentVolumeClaim:
+            claimName: frith-data-pvc 
