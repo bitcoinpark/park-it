@@ -37,3 +37,9 @@ spec:
         reclaimPolicy: Retain
         fstype: ext4
         cache: writethrough
+      - name: proxmox-data-expandable
+        allowVolumeExpansion: true
+        storage: DATA
+        reclaimPolicy: Retain
+        fstype: ext4
+        cache: writethrough
