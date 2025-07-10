@@ -1,10 +1,10 @@
 # Park IT
 
-Bitcoin Park Kubernetes infrastructure for self-hosting bitcoin-related services and providing resources for developers working at Bitcoin Park.
+Kubernetes infrastructure for self-hosting bitcoin-related services and providing resources for developers working at a shared space.
 
 ## Overview
 
-This repository contains Kubernetes manifests and configurations for managing the Park's self-sovereign bitcoin infrastructure running on Proxmox. The cluster provides:
+This repository contains Kubernetes manifests and configurations for managing self-sovereign bitcoin infrastructure running on Proxmox. The cluster provides:
 
 - **Bitcoin Core nodes** (mainnet, testnet4, signet) with full indexing
 - **Electrum servers** (current using Fulcrum)
