@@ -21,8 +21,5 @@ This repository contains Kubernetes manifests and configurations for managing se
 - **Proxmox CSI** - Dynamic storage provisioning
 - **Cilium** - Container network interface for network policies
 
-## Notes:
-Proxmox Admin URL: https://10.31.0.6:8006/
-
 ## Secrets:
 See: [Secrets Readme](./secrets/README.md)
