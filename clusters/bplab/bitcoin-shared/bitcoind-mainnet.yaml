@@ -64,7 +64,7 @@ spec:
     persistence:
       enabled: true
       storageClass: proxmox-data
-      size: 800Gi
+      size: 1Ti
 
     podSecurityContext:
       fsGroup: 1000
