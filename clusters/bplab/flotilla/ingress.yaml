@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: flotilla-ingress
+  namespace: flotilla
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: traefik-internal
+  rules:
+    - host: flotilla.lab.bitcoinpark.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: flotilla-service
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - flotilla.lab.bitcoinpark.com
+      secretName: flotilla-tls 

@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: frith
+resources:
+  - namespace.yaml
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+  - pvc.yaml
+configMapGenerator:
+  - name: frith-config
+    envs:
+      - config.env
+images:
+  - name: ghcr.io/coracle-social/frith
+    newTag: latest # You might want to pin this to a specific version 
