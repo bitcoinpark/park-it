@@ -55,8 +55,11 @@ spec:
           group_wait: 30s
           group_interval: 5m
           repeat_interval: 3h
-
           receiver: discord
+          routes:
+          - receiver: discord
+            matchers:
+              - alertname = "Watchdog"
 
         receivers:
         - name: discord
