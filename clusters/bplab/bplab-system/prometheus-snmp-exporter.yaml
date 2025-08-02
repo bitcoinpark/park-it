@@ -1,0 +1,125 @@
+---
+# HelmRepository for Prometheus Community Charts
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: prometheus-community
+  namespace: bplab-system
+spec:
+  interval: 1h
+  url: https://prometheus-community.github.io/helm-charts
+---
+# HelmRelease for SNMP Exporter
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: prometheus-snmp-exporter
+  namespace: bplab-system
+spec:
+  interval: 5m
+  targetNamespace: bplab-system
+  chart:
+    spec:
+      chart: prometheus-snmp-exporter
+      version: "9.6.1"  # Check for latest version
+      sourceRef:
+        kind: HelmRepository
+        name: prometheus-community
+        namespace: bplab-system
+
+  install:
+    crds: Create
+  upgrade:
+    crds: CreateReplace
+  # Helm chart values customization
+  values:
+    # Resource configuration
+    resources:
+      limits:
+        cpu: 200m
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+    # Service configuration
+    service:
+      type: ClusterIP
+      port: 9116
+      targetPort: 9116
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9116"
+
+    # ServiceMonitor for Prometheus Operator
+    serviceMonitor:
+      enabled: true
+      namespace: bplab-system
+      labels:
+        app: prometheus-snmp-exporter
+      interval: 30s
+      scrapeTimeout: 10s
+
+    # Custom SNMP configuration
+    config: |
+      # Authentication configurations
+      auths:
+        public_v2:
+          community: public
+          security_level: noAuthNoPriv
+          auth_protocol: MD5
+          priv_protocol: DES
+          version: 2
+      
+      # SNMP modules
+      modules:
+        # Basic interface monitoring
+        if_mib:
+          walk:
+            - 1.3.6.1.2.1.2.2.1.2   # ifDescr
+            - 1.3.6.1.2.1.2.2.1.3   # ifType
+            - 1.3.6.1.2.1.2.2.1.5   # ifSpeed
+            - 1.3.6.1.2.1.2.2.1.8   # ifOperStatus
+            - 1.3.6.1.2.1.2.2.1.10  # ifInOctets
+            - 1.3.6.1.2.1.2.2.1.16  # ifOutOctets
+            - 1.3.6.1.2.1.2.2.1.14  # ifInErrors
+            - 1.3.6.1.2.1.2.2.1.20  # ifOutErrors
+          metrics:
+            - name: ifMtu
+              oid: 1.3.6.1.2.1.2.2.1.4
+              type: gauge
+            - name: ifSpeed
+              oid: 1.3.6.1.2.1.2.2.1.5
+              type: gauge
+            - name: ifOperStatus
+              oid: 1.3.6.1.2.1.2.2.1.8
+              type: gauge
+            - name: ifInOctets
+              oid: 1.3.6.1.2.1.2.2.1.10
+              type: counter
+            - name: ifOutOctets
+              oid: 1.3.6.1.2.1.2.2.1.16
+              type: counter
+
+        # pfSense specific module
+        pfsense:
+          walk:
+            - 1.3.6.1.2.1.1     # System MIB
+            - 1.3.6.1.2.1.2.2   # Interfaces
+            - 1.3.6.1.4.1.12325.1.200.1.8.2.1.5  # pfSense states
+          metrics:
+            - name: pfStateTableCount
+              oid: 1.3.6.1.4.1.12325.1.200.1.8.2.1.5
+              type: gauge
+              help: Number of entries in the state table
+
+        # Ubiquiti UniFi basic module
+        unifi:
+          walk:
+            - 1.3.6.1.2.1.1     # System MIB
+            - 1.3.6.1.2.1.2.2   # Interfaces
+            - 1.3.6.1.4.1.41112 # Ubiquiti enterprise MIB
+          metrics:
+            - name: unifiApSystemUptime
+              oid: 1.3.6.1.2.1.1.3.0
+              type: gauge

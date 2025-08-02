@@ -1,0 +1,196 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: prometheus-community
+  namespace: bplab-system
+spec:
+  interval: 1h
+  url: https://prometheus-community.github.io/helm-charts
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kube-prometheus-stack
+  namespace: bplab-system
+spec:
+  interval: 5m
+  targetNamespace: bplab-system
+  chart:
+    spec:
+      chart: kube-prometheus-stack
+      sourceRef:
+        kind: HelmRepository
+        name: prometheus-community
+        namespace: bplab-system
+  install:
+    crds: Create
+  upgrade:
+    crds: CreateReplace
+  values:
+    defaultRules:
+      rules:
+        etcd: false
+        kubeApiserver: false
+        kubeScheduler: false
+
+    kubeApiServer:
+      enabled: false
+    kubeEtcd:
+      enabled: false
+    kubeControllerManager:
+      enabled: false
+    kubeScheduler:
+      enabled: false
+
+    alertmanager:
+      enabled: true
+      alertmanagerSpec:
+        secrets:
+          - alertmanager-secrets
+        externalUrl: https://alertmanager.lab.bitcoinpark.com
+      config:
+        route:
+          group_by: ['alertname', 'job']
+          group_wait: 30s
+          group_interval: 5m
+          repeat_interval: 3h
+          receiver: discord
+          routes:
+            - receiver: discord
+              matchers:
+                - alertname = "Watchdog"
+
+        receivers:
+          - name: discord
+            discord_configs:
+              - webhook_url_file: /etc/alertmanager/secrets/alertmanager-secrets/webhook-url
+
+      ingress:
+        enabled: true
+        ingressClassName: traefik-internal
+        annotations:
+          nginx.ingress.kubernetes.io/whitelist-source-range: "10.21.0.0/16"
+          cert-manager.io/cluster-issuer: "letsencrypt-prod"
+        hosts:
+          - alertmanager.lab.bitcoinpark.com
+        tls:
+          - hosts:
+              - alertmanager.lab.bitcoinpark.com
+            secretName: alertmanager-tls
+
+    grafana:
+      enabled: true
+      sidecar:
+        dashboards:
+          enabled: true
+          provider:
+      ingress:
+        enabled: true
+        ingressClassName: traefik-internal
+        annotations:
+          nginx.ingress.kubernetes.io/enable-modsecurity: "false"
+          nginx.ingress.kubernetes.io/whitelist-source-range: "10.21.0.0/16"
+          cert-manager.io/cluster-issuer: "letsencrypt-prod"
+        hosts:
+          - grafana.lab.bitcoinpark.com
+        tls:
+          - hosts:
+              - grafana.lab.bitcoinpark.com
+            secretName: grafana-tls
+      persistence:
+        enabled: true
+        storageClassName: proxmox-data-expandable
+        size: 2Gi
+
+    prometheus:
+      ingress:
+        enabled: true
+        ingressClassName: traefik-internal
+        annotations:
+          nginx.ingress.kubernetes.io/whitelist-source-range: "10.21.0.0/16"
+          cert-manager.io/cluster-issuer: "letsencrypt-prod"
+        hosts:
+          - prometheus.lab.bitcoinpark.com
+        tls:
+          - hosts:
+              - prometheus.lab.bitcoinpark.com
+            secretName: prometheus-tls
+      prometheusSpec:
+        serviceMonitorSelectorNilUsesHelmValues: false
+        externalUrl: "https://prometheus.lab.bitcoinpark.com"
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: proxmox-data-expandable
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: 200Gi
+
+        # SNMP monitoring configuration
+        additionalScrapeConfigs:
+          - job_name: 'snmp-pfsense'
+            static_configs:
+              - targets:
+                  - '10.21.0.1' # fw1, 1910 pfSense firewall
+            metrics_path: /snmp
+            params:
+              module: [ 'pfsense' ]  # Must match module name in SNMP exporter config
+            relabel_configs:
+              - source_labels: [ __address__ ]
+                target_label: __param_target
+              - source_labels: [ __param_target ]
+                target_label: instance
+              - target_label: __address__
+                replacement: 'bplab-system-prometheus-snmp-exporter.bplab-system.svc.cluster.local:9116'
+            scrape_interval: 60s
+            scrape_timeout: 30s
+
+          - job_name: 'snmp-ubiquiti'
+            static_configs:
+              - targets:
+                  - '10.0.0.2'  # es2, 1912 ubiquity switch
+                  - '10.0.0.3'  # es1, 1910 ubiquity switch
+                  - '10.0.1.10' # usw, 1910 ubiquity 10g aggregation switch
+                  - '10.0.0.10' # u7 pro, 1910 10G AP
+                  - '10.0.2.19' # ap3, 1912 U6 Pro
+                  - '10.0.2.18' # ap2, 1912 AC Pro
+                  - '10.0.2.23' # ap1, 1912 AC Pro
+            metrics_path: /snmp
+            params:
+              module: [ 'unifi' ]  # Must match module name in SNMP exporter config
+            relabel_configs:
+              - source_labels: [ __address__ ]
+                target_label: __param_target
+              - source_labels: [ __param_target ]
+                target_label: instance
+              - target_label: __address__
+                replacement: 'bplab-system-prometheus-snmp-exporter.bplab-system.svc.cluster.local:9116'
+            scrape_interval: 60s
+            scrape_timeout: 30s
+
+          # Optional: Generic SNMP job for basic interface monitoring
+          - job_name: 'snmp-network-devices'
+            static_configs:
+              - targets:
+                  - '10.21.0.1' # fw1, 1910 pfSense firewall
+                  - '10.0.0.2'  # es2, 1912 ubiquity switch
+                  - '10.0.0.3'  # es1, 1910 ubiquity switch
+                  - '10.0.1.10' # usw, 1910 ubiquity 10g aggregation switch
+                  - '10.0.0.10' # u7 pro, 1910 10G AP
+                  - '10.0.2.19' # ap3, 1912 U6 Pro
+                  - '10.0.2.18' # ap2, 1912 AC Pro
+                  - '10.0.2.23' # ap1, 1912 AC Pro
+            metrics_path: /snmp
+            params:
+              module: [ 'if_mib' ]  # Generic interface monitoring
+            relabel_configs:
+              - source_labels: [ __address__ ]
+                target_label: __param_target
+              - source_labels: [ __param_target ]
+                target_label: instance
+              - target_label: __address__
+                replacement: 'bplab-system-prometheus-snmp-exporter.bplab-system.svc.cluster.local:9116'
+            scrape_interval: 60s
+            scrape_timeout: 30s

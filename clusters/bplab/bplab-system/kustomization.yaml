@@ -6,3 +6,4 @@ resources:
   - metallb.yaml
   - csi-proxmox.yaml
   - traefik.yaml
+  - kube-prometheus-stack.yaml
